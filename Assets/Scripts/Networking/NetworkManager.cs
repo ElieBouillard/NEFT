@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using RiptideDemos.SteamTransport.PlayerHosted;
 using RiptideNetworking;
 using RiptideNetworking.Transports.SteamTransport;
 using RiptideNetworking.Utils;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 
 [RequireComponent(typeof(NetworkClientMessage))]
 [RequireComponent(typeof(NetworkServerMessage))]
@@ -41,11 +38,12 @@ public class NetworkManager : MonoBehaviour
     #endregion
 
     #region Inspector
-    [SerializeField] private bool _useSteam = false;
+    [SerializeField] public bool UseSteam = false;
     [SerializeField] private ushort _port = 7777;
     [SerializeField] private ushort _maxPlayer = 4;
-    [SerializeField] public PlayerIdentity PlayerPrefab;
-    [SerializeField] public Transform[] SpawnPoints;
+    [SerializeField] private PlayerIdentity LobbyPlayerPrefab;
+    [SerializeField] private PlayerIdentity PlayerPrefab;
+    [SerializeField] private Transform[] SpawnPoints;
     #endregion
 
     #region Unity
@@ -71,9 +69,18 @@ public class NetworkManager : MonoBehaviour
         EnableServer(steamServer);
     }
 
+    private void FixedUpdate()
+    {
+        Client.Tick();
+        
+        if(!Server.IsRunning) return;
+        
+        Server.Tick();
+    }
+
     private void EnableClient(SteamServer steamServer)
     {
-        if (_useSteam) Client = new Client(new SteamClient(steamServer));
+        if (UseSteam) Client = new Client(new SteamClient(steamServer));
         else Client = new Client();
 
         Client.Connected += ClientOnConnected;
@@ -85,42 +92,60 @@ public class NetworkManager : MonoBehaviour
 
     private void EnableServer(SteamServer steamServer)
     {
-        if (_useSteam) Server = new Server(steamServer);
+        if (UseSteam) Server = new Server(steamServer);
         else Server = new Server();
 
         Server.ClientConnected += ServerOnClientConnected;
         Server.ClientDisconnected += ServerOnClientDisconnected;
     }
-    
+
+    private void OnApplicationQuit()
+    {
+        LeaveLobby();
+    }
+
     #endregion
 
     #region Server
     private void ServerOnClientConnected(object sender, ServerClientConnectedEventArgs e)
     {
-        
+
     }
 
     private void ServerOnClientDisconnected(object sender, ClientDisconnectedEventArgs e)
     {
-        
+        ServerMessage.ServerSendOnClientDespawnLobbyPlayer(e.Id);
     }
     #endregion
 
     #region Client
-
     private void ClientOnConnected(object sender, EventArgs e)
     {
+        UIManager.Instance.ClientConnected(true);
+
+        if (Client.Id == 1)
+        {
+            LobbyPannel.Instance.EnableHostStartGameButton();
+        }
         
+        ClientMessage.SendOnClientConnected();
     }
 
     private void ClientOnDisconnected(object sender, EventArgs e)
     {
+        UIManager.Instance.ClientConnected(false);
         
+        //Destroy and clear players
+        foreach (ushort id in Players.Keys)
+        {
+            Destroy(Players[id].gameObject);
+        }
+        Players.Clear();
     }
 
     private void ClientOnConnectionFailed(object sender, EventArgs e)
     {
-
+        UIManager.Instance.ClientConnected(false);
     }
 
     private void ClientOnPlayerJoin(object sender, ClientConnectedEventArgs e)
@@ -139,9 +164,9 @@ public class NetworkManager : MonoBehaviour
 
     public void StartHost()
     {
-        if (_useSteam)
+        if (UseSteam)
         {
-            
+            SteamLobbyManager.Instance.CreateLobby();
         }
         else
         {
@@ -152,12 +177,19 @@ public class NetworkManager : MonoBehaviour
 
     public void JoinLobby()
     {
+        if (UseSteam) return;
         Client.Connect($"127.0.0.1:{_port}");
     }
 
     public void LeaveLobby()
     {
+        Client.Disconnect();
+        ClientOnDisconnected(new object(), EventArgs.Empty);
         
+        if(UseSteam) SteamLobbyManager.Instance.LeaveLobby();
+        
+        if(!Server.IsRunning) return;
+        Server.Stop();
     }
 
     public void StartGame()
@@ -171,7 +203,7 @@ public class NetworkManager : MonoBehaviour
         
         if (lobbyManager == null) return;
         
-        if (_useSteam)
+        if (UseSteam)
         {
             gameObject.AddComponent<SteamManager>();
             lobbyManager.enabled = true;
@@ -181,11 +213,55 @@ public class NetworkManager : MonoBehaviour
             lobbyManager.enabled = false;
         }
     }
+
+    public void SpawnLobbyPlayer(ushort id, ulong steamId)
+    {
+        PlayerIdentity playerInstance = Instantiate(LobbyPlayerPrefab, SpawnPoints[Players.Count].position, Quaternion.identity);
+        playerInstance.PlayerId = id;
+        playerInstance.gameObject.name = $"Player {id}";
+        Players.Add(id, playerInstance);
+        
+        if(UseSteam) playerInstance.LoadSteamInfo(steamId);
+
+        if (Client.Id == id)
+        {
+            LocalPlayer = playerInstance;
+            playerInstance.SetPlayerAsLocalPlayer();
+        }
+    }
+
+    public void DespawnLobbyPlayer(ushort currId)
+    {
+        foreach (ushort id in Players.Keys)
+        {
+            if (currId == id)
+            {
+                Destroy(Players[id].gameObject);
+                Players.Remove(currId);
+                break;
+            }
+        }
+
+        //Reorganize players in lobby
+        int index = 0;
+        foreach (ushort id in Players.Keys)
+        {
+            Players[id].transform.position = SpawnPoints[index].position;
+            index++;
+        }
+    }
     #endregion
 
     #region Debug
 
-    
+    [ContextMenu("DebugSteamPlayers")]
+    public void DebugSteamPlayers()
+    {
+        foreach (var id in Players.Keys)
+        {
+            Debug.Log( $"{Players[id].SteamPlayerName} {Players[id].SteamPlayerId} {id}");
+        }
+    }
 
     #endregion
 }

@@ -1,18 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
+using Steamworks;
 using UnityEngine;
 
 public class PlayerIdentity : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public ushort PlayerId;
+    public bool IsLocalPlayer { get; private set; }
 
-    // Update is called once per frame
-    void Update()
+    public ulong SteamPlayerId;
+
+    public string SteamPlayerName;
+
+    public void LoadSteamInfo(ulong steamId)
     {
-        
+        SteamPlayerId = steamId;
+        SteamPlayerName = SteamFriends.GetFriendPersonaName((CSteamID)SteamPlayerId);
+        gameObject.name = $"Player {PlayerId} : {SteamPlayerName}";
+
+        PlayerLobbyDisplay lobbyDisplay = gameObject.GetComponent<PlayerLobbyDisplay>() ;
+        lobbyDisplay.SetPlayerNameText();
+        lobbyDisplay.LoadPlayerAvatar();
+    }
+    
+    public void SetPlayerAsLocalPlayer()
+    {
+        IsLocalPlayer = true;
+        gameObject.GetComponentInChildren<Renderer>().material.color = Color.green;
     }
 }
