@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Schema;
 using RiptideNetworking;
 using RiptideNetworking.Transports.SteamTransport;
 using RiptideNetworking.Utils;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(NetworkClientMessage))]
 [RequireComponent(typeof(NetworkServerMessage))]
@@ -43,9 +45,12 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] private ushort _maxPlayer = 4;
     [SerializeField] private PlayerIdentity LobbyPlayerPrefab;
     [SerializeField] private PlayerIdentity PlayerPrefab;
+    [SerializeField] private PlayerIdentity LocalPlayerPrefab;
     [SerializeField] private Transform[] SpawnPoints;
     #endregion
 
+    private bool _isRunningGame = false;
+    
     #region Unity
     private void Awake()
     {
@@ -63,6 +68,8 @@ public class NetworkManager : MonoBehaviour
     {
         RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
 
+        SceneManager.sceneLoaded += OnClientSceneLoaded;
+        
         SteamServer steamServer = new SteamServer();
         
         EnableClient(steamServer);
@@ -109,7 +116,10 @@ public class NetworkManager : MonoBehaviour
     #region Server
     private void ServerOnClientConnected(object sender, ServerClientConnectedEventArgs e)
     {
-
+        if (_isRunningGame)
+        {
+            Server.DisconnectClient(e.Client.Id);
+        }
     }
 
     private void ServerOnClientDisconnected(object sender, ClientDisconnectedEventArgs e)
@@ -133,7 +143,7 @@ public class NetworkManager : MonoBehaviour
 
     private void ClientOnDisconnected(object sender, EventArgs e)
     {
-        UIManager.Instance.ClientConnected(false);
+        if(!_isRunningGame) UIManager.Instance.ClientConnected(false);
         
         //Destroy and clear players
         foreach (ushort id in Players.Keys)
@@ -141,6 +151,8 @@ public class NetworkManager : MonoBehaviour
             Destroy(Players[id].gameObject);
         }
         Players.Clear();
+        
+        _isRunningGame = false;
     }
 
     private void ClientOnConnectionFailed(object sender, EventArgs e)
@@ -194,9 +206,9 @@ public class NetworkManager : MonoBehaviour
 
     public void StartGame()
     {
-        
+        ClientMessage.SendOnStartGame();
     }
-    
+
     private void CheckForSteamLobby()
     {
         SteamLobbyManager lobbyManager = FindObjectOfType<SteamLobbyManager>();
@@ -216,6 +228,8 @@ public class NetworkManager : MonoBehaviour
 
     public void SpawnLobbyPlayer(ushort id, ulong steamId)
     {
+        if (_isRunningGame) return;
+        
         PlayerIdentity playerInstance = Instantiate(LobbyPlayerPrefab, SpawnPoints[Players.Count].position, Quaternion.identity);
         playerInstance.PlayerId = id;
         playerInstance.gameObject.name = $"Player {id}";
@@ -232,6 +246,8 @@ public class NetworkManager : MonoBehaviour
 
     public void DespawnLobbyPlayer(ushort currId)
     {
+        if (_isRunningGame) return;
+        
         foreach (ushort id in Players.Keys)
         {
             if (currId == id)
@@ -249,6 +265,47 @@ public class NetworkManager : MonoBehaviour
             Players[id].transform.position = SpawnPoints[index].position;
             index++;
         }
+    }
+    
+    public void OnStartGame()
+    {
+        _isRunningGame = true;
+        SceneManager.LoadScene("GameplayScene");
+    }
+
+    private void OnClientSceneLoaded(Scene scene, LoadSceneMode loadSceneMode)
+    {
+        if (scene.name == "GameplayScene")
+        {
+            SpawnPlayers();
+        }
+    }
+    
+    public void SpawnPlayers()
+    {
+        Dictionary<ushort, PlayerIdentity> playersTemp = new Dictionary<ushort, PlayerIdentity>();
+        foreach (ushort id in Players.Keys)
+        {
+            PlayerIdentity player;
+            if (id == Client.Id)
+            {
+                player = Instantiate(LocalPlayerPrefab, Vector3.zero, Quaternion.identity);
+                player.SetPlayerAsLocalPlayer();
+                CameraController.Instance.SetTarget(player.transform);
+            }
+            else
+            {
+                player = Instantiate(PlayerPrefab, Vector3.zero, Quaternion.identity);
+            }
+
+            player.PlayerId = id;
+            player.SteamPlayerId = Players[id].SteamPlayerId;
+            player.SteamPlayerName = Players[id].SteamPlayerName;
+
+            playersTemp.Add(id, player);
+        }
+        
+        Players = playersTemp;
     }
     #endregion
 

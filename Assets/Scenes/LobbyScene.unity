@@ -1903,11 +1903,12 @@ MonoBehaviour:
   ClientMessage: {fileID: 0}
   ServerMessage: {fileID: 0}
   LocalPlayer: {fileID: 0}
-  UseSteam: 1
+  UseSteam: 0
   _port: 7777
   _maxPlayer: 4
   LobbyPlayerPrefab: {fileID: -308427907339325933, guid: c66db3126540afb44af0b0d78ca037c5, type: 3}
-  PlayerPrefab: {fileID: 0}
+  PlayerPrefab: {fileID: -7478527453054281576, guid: 083e499180b35b74787193247bacc546, type: 3}
+  LocalPlayerPrefab: {fileID: -308427907339325933, guid: 0778c729b35a4b54f9374b2c5ac71160, type: 3}
   SpawnPoints:
   - {fileID: 1228116574}
   - {fileID: 1929769332}

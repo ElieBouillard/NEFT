@@ -9,6 +9,8 @@ public class NetworkServerMessage : MonoBehaviour
     {
         spawnLobbyPlayer = 1,
         despawnLobbyPlayer,
+        startGame,
+        movement,
     }
 
     #region Sended
@@ -36,6 +38,20 @@ public class NetworkServerMessage : MonoBehaviour
         message.AddUShort(currId);
         NetworkManager.Instance.Server.SendToAll(message, currId);
     }
+
+    private static void ServerSendOnClientStartGame()
+    {
+        Message message = Message.Create(MessageSendMode.reliable, MessageId.startGame);
+        NetworkManager.Instance.Server.SendToAll(message);
+    }
+
+    private static void ServerSendClientMovement(ushort id, Vector3 pos)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, MessageId.movement);
+        message.AddUShort(id);
+        message.AddVector3(pos);
+        NetworkManager.Instance.Server.SendToAll(message, id);
+    }
     #endregion
 
 
@@ -47,5 +63,19 @@ public class NetworkServerMessage : MonoBehaviour
         if (NetworkManager.Instance.UseSteam) steamId = message.GetULong();
         ServerSendOnClientSpawnLobbyPlayer(id, steamId);   
     }
+
+    [MessageHandler((ushort) NetworkClientMessage.MessageId.startGame)]
+    private static void OnClientStartGame(ushort id, Message message)
+    {
+        if (id != 1) return; //Check if client is host
+        ServerSendOnClientStartGame();
+    }
+
+    [MessageHandler((ushort) NetworkClientMessage.MessageId.movement)]
+    private static void OnClientMovement(ushort id, Message message)
+    {
+        ServerSendClientMovement(id, message.GetVector3());
+    }
+
     #endregion
 }

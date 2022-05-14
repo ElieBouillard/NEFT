@@ -9,6 +9,8 @@ public class NetworkClientMessage : MonoBehaviour
     internal enum  MessageId : ushort
     {
         clientConnected = 1,
+        startGame,
+        movement,
     }
 
     #region Sended
@@ -16,6 +18,19 @@ public class NetworkClientMessage : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.reliable, MessageId.clientConnected);
         if (NetworkManager.Instance.UseSteam) message.AddULong((ulong)SteamUser.GetSteamID());
+        NetworkManager.Instance.Client.Send(message);
+    }
+
+    public void SendOnStartGame()
+    {
+        Message message = Message.Create(MessageSendMode.reliable, MessageId.startGame);
+        NetworkManager.Instance.Client.Send(message);
+    }
+
+    public void SendOnMovement(Vector3 pos)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, MessageId.movement);
+        message.AddVector3(pos);
         NetworkManager.Instance.Client.Send(message);
     }
     #endregion
@@ -37,6 +52,27 @@ public class NetworkClientMessage : MonoBehaviour
     {
         ushort playerId = message.GetUShort();
         NetworkManager.Instance.DespawnLobbyPlayer(playerId);
+    }
+
+    [MessageHandler((ushort) NetworkServerMessage.MessageId.startGame)]
+    private static void OnServerStartGame(Message message)
+    {
+        NetworkManager.Instance.OnStartGame();
+    }
+
+    [MessageHandler((ushort) NetworkServerMessage.MessageId.movement)]
+    private static void OnServerMovePlayer(Message message)
+    {
+        ushort playerId = message.GetUShort();
+        Vector3 pos = message.GetVector3();
+
+        foreach (var id in NetworkManager.Instance.Players.Keys)
+        {
+            if (id == playerId)
+            {
+                NetworkManager.Instance.Players[id].Move(pos);
+            }
+        }
     }
     #endregion
 }
