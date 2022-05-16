@@ -18,7 +18,7 @@ public class PlayerIdentity : MonoBehaviour
         SteamPlayerId = steamId;
         SteamPlayerName = SteamFriends.GetFriendPersonaName((CSteamID)SteamPlayerId);
         gameObject.name = $"Player {PlayerId} : {SteamPlayerName}";
-
+        
         PlayerLobbyDisplay lobbyDisplay = gameObject.GetComponent<PlayerLobbyDisplay>() ;
         lobbyDisplay.SetPlayerNameText();
         lobbyDisplay.LoadPlayerAvatar();

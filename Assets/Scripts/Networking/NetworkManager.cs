@@ -199,9 +199,8 @@ public class NetworkManager : MonoBehaviour
         ClientOnDisconnected(new object(), EventArgs.Empty);
         
         if(UseSteam) SteamLobbyManager.Instance.LeaveLobby();
-        
-        if(!Server.IsRunning) return;
-        Server.Stop();
+
+        if (Server.IsRunning) Server.Stop();
     }
 
     public void StartGame()
@@ -302,6 +301,7 @@ public class NetworkManager : MonoBehaviour
             player.SteamPlayerId = Players[id].SteamPlayerId;
             player.SteamPlayerName = Players[id].SteamPlayerName;
 
+            player.gameObject.name = $"Player : {id} : {player.SteamPlayerName}";
             playersTemp.Add(id, player);
         }
         

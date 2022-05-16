@@ -23,23 +23,27 @@ public class UIManager : MonoBehaviour
     }
     #endregion
     
-    private ConnectionPannel _connectionPannel;
-    private LobbyPannel _lobbyPannel;
+    [SerializeField] private ConnectionPannel _connectionPannel;
+    [SerializeField] private LobbyPannel _lobbyPannel;
+    [SerializeField] private SteamInfoPannel _steamInfoPannel;
 
     private void Awake()
     {
         Instance = this;
         
-        _connectionPannel = GetComponentInChildren<ConnectionPannel>();
-        _lobbyPannel = GetComponentInChildren<LobbyPannel>();
-        
         _connectionPannel.gameObject.SetActive(true);
         _lobbyPannel.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        _steamInfoPannel.gameObject.SetActive(NetworkManager.Instance.UseSteam);
     }
 
     public void ClientConnected(bool value)
     {
         _connectionPannel.gameObject.SetActive(!value);
+        // _steamInfoPannel.gameObject.SetActive(!value);
         _lobbyPannel.gameObject.SetActive(value);
     }
 }

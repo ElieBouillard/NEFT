@@ -7,11 +7,13 @@ public class ConnectionPannel : Pannel
 {
     [SerializeField] private Button _hostButton;
     [SerializeField] private Button _joinButton;
+    [SerializeField] private Button _quitButton;
 
     public override void AssignButtonsReferences()
     {
         _hostButton.onClick.AddListener(OnClickHostButton);
         _joinButton.onClick.AddListener(OnClickJoinButton);
+        _quitButton.onClick.AddListener(OnClickQuitButton);
     }
 
     private void OnClickHostButton()
@@ -22,5 +24,10 @@ public class ConnectionPannel : Pannel
     private void OnClickJoinButton()
     {
         NetworkManager.Instance.JoinLobby();
+    }
+
+    private void OnClickQuitButton()
+    {
+        Application.Quit();
     }
 }

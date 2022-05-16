@@ -35,7 +35,7 @@ public class PlayerLobbyDisplay : MonoBehaviour
     {
         _playerAvatarId = SteamFriends.GetLargeFriendAvatar(new CSteamID(_player.SteamPlayerId));
         
-        if(_playerAvatarId == -1)  {Debug.Log("Error loading imager"); return;}
+        if(_playerAvatarId == -1)  {Debug.Log("Error loading image"); return;}
 
         _profileImage.texture = GetSteamImageAsTexture(_playerAvatarId);
     }
