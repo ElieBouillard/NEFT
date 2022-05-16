@@ -18,4 +18,15 @@ public class PlayerRotationController : MonoBehaviour
             transform.forward = Vector3.Lerp(transform.forward, dir, Time.deltaTime * _smoothForce);
         }
     }
+
+    private int index = 0;
+    private void FixedUpdate()
+    {
+        if (index % 3 == 0)
+        {
+            NetworkManager.Instance.ClientMessage.SendOnRotation(transform.rotation.eulerAngles.y);
+            index = 0;
+        }
+        index++;
+    }
 }

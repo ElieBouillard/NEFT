@@ -33,7 +33,7 @@ public class SteamInfoPannel : MonoBehaviour
         LoadFriends();
     }
 
-    private float clock = 5f;
+    private float clock = 3f;
     private void Update()
     {
         clock += Time.deltaTime;
@@ -71,6 +71,8 @@ public class SteamInfoPannel : MonoBehaviour
 
             if (gameId == gameParty.m_gameID)
             {
+                if (_friends.ContainsKey(friend)) break;
+
                 SteamFriendProfileDisplay display = Instantiate(_steamFriendProfile, _friendsScrollView.transform);
                 display.gameObject.GetComponent<RectTransform>().position = new Vector3(
                     display.gameObject.GetComponent<RectTransform>().position.x, yPosDisplay,

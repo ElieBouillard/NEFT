@@ -11,6 +11,7 @@ public class NetworkServerMessage : MonoBehaviour
         despawnLobbyPlayer,
         startGame,
         movement,
+        rotation,
     }
 
     #region Sended
@@ -52,6 +53,14 @@ public class NetworkServerMessage : MonoBehaviour
         message.AddVector3(pos);
         NetworkManager.Instance.Server.SendToAll(message, id);
     }
+
+    private static void ServerOnClientRotation(ushort id, float y)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, MessageId.rotation);
+        message.AddUShort(id);
+        message.AddFloat(y);
+        NetworkManager.Instance.Server.SendToAll(message, id);
+    }
     #endregion
 
 
@@ -77,5 +86,10 @@ public class NetworkServerMessage : MonoBehaviour
         ServerSendClientMovement(id, message.GetVector3());
     }
 
+    [MessageHandler((ushort) NetworkClientMessage.MessageId.rotation)]
+    private static void OnClientRotation(ushort id, Message message)
+    {
+        ServerOnClientRotation(id, message.GetFloat());
+    }
     #endregion
 }

@@ -11,6 +11,7 @@ public class NetworkClientMessage : MonoBehaviour
         clientConnected = 1,
         startGame,
         movement,
+        rotation,
     }
 
     #region Sended
@@ -31,6 +32,13 @@ public class NetworkClientMessage : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.unreliable, MessageId.movement);
         message.AddVector3(pos);
+        NetworkManager.Instance.Client.Send(message);
+    }
+
+    public void SendOnRotation(float y)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, MessageId.rotation);
+        message.AddFloat(y);
         NetworkManager.Instance.Client.Send(message);
     }
     #endregion
@@ -71,6 +79,21 @@ public class NetworkClientMessage : MonoBehaviour
             if (id == playerId)
             {
                 NetworkManager.Instance.Players[id].Move(pos);
+            }
+        }
+    }
+
+    [MessageHandler((ushort) NetworkServerMessage.MessageId.rotation)]
+    private static void OnServerRotatePlayer(Message message)
+    {
+        ushort playerId = message.GetUShort();
+        float y = message.GetFloat();
+
+        foreach (var id in NetworkManager.Instance.Players.Keys)
+        {
+            if (id == playerId)
+            {
+                NetworkManager.Instance.Players[id].Rotate(y);
             }
         }
     }

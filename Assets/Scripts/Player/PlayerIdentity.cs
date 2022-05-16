@@ -31,11 +31,13 @@ public class PlayerIdentity : MonoBehaviour
     }
 
     private Vector3? _targetPos;
+    private float? _targetRot;
     private void Update()
     {
         if(IsLocalPlayer) return;
-        if(_targetPos == null) return;
-        transform.position = Vector3.LerpUnclamped(transform.position, _targetPos.Value, Time.deltaTime * 20f);
+        
+        if(_targetPos != null) transform.position = Vector3.LerpUnclamped(transform.position, _targetPos.Value, Time.deltaTime * 20f);
+        if (_targetRot != null) transform.rotation = Quaternion.Euler(new Vector3(0,  Mathf.Lerp(transform.rotation.eulerAngles.y, _targetRot.Value, Time.deltaTime * 25f)));
     }
 
     private void FixedUpdate()
@@ -47,5 +49,10 @@ public class PlayerIdentity : MonoBehaviour
     public void Move(Vector3 pos)
     {
         _targetPos = pos;
+    }
+
+    public void Rotate(float rotY)
+    {
+        _targetRot = rotY;
     }
 }
