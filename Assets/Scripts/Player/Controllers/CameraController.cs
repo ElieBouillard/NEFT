@@ -37,7 +37,7 @@ public class CameraController : MonoBehaviour
         _target = target;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (_target == null) return;
 
