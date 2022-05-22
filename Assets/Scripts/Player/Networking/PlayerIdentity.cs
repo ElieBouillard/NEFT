@@ -13,6 +13,9 @@ public class PlayerIdentity : MonoBehaviour
 
     public string SteamPlayerName;
 
+    public Animator _animator;
+    
+
     public void LoadSteamInfo(ulong steamId)
     {
         SteamPlayerId = steamId;
@@ -32,6 +35,7 @@ public class PlayerIdentity : MonoBehaviour
 
     private Vector3? _targetPos;
     private float? _targetRotY;
+    private Vector2? _targetAnimation;
     private void Update()
     {
         if(IsLocalPlayer) return;
@@ -59,5 +63,12 @@ public class PlayerIdentity : MonoBehaviour
     public void Rotate(float rotY)
     {
         _targetRotY = rotY;
+    }
+
+    public void SetAnimation(float velocityX, float velocityZ)
+    {
+        if(_animator == null) return;
+        _animator.SetFloat("VelocityZ", velocityZ, 0.1f, Time.deltaTime);
+        _animator.SetFloat("VelocityX", velocityX, 0.1f, Time.deltaTime);
     }
 }

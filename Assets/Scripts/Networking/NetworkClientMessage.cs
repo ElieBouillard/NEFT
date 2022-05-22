@@ -12,6 +12,7 @@ public class NetworkClientMessage : MonoBehaviour
         startGame,
         movement,
         rotation,
+        animation,
     }
 
     #region Sended
@@ -39,6 +40,14 @@ public class NetworkClientMessage : MonoBehaviour
     {
         Message message = Message.Create(MessageSendMode.unreliable, MessageId.rotation);
         message.AddFloat(y);
+        NetworkManager.Instance.Client.Send(message);
+    }
+
+    public void SendOnAnimation(float velocityX, float velocityZ)
+    {
+        Message message = Message.Create(MessageSendMode.unreliable, MessageId.animation);
+        message.AddFloat(velocityX);
+        message.AddFloat(velocityZ);
         NetworkManager.Instance.Client.Send(message);
     }
     #endregion
@@ -96,6 +105,25 @@ public class NetworkClientMessage : MonoBehaviour
                 NetworkManager.Instance.Players[id].Rotate(y);
             }
         }
+    }
+
+    [MessageHandler((ushort) NetworkServerMessage.MessageId.animation)]
+    private static void OnServerAnimatePlayer(Message message)
+    {
+        Debug.Log("uwu");
+        
+        ushort playerId = message.GetUShort();
+        float velocityX = message.GetFloat();
+        float velocityZ = message.GetFloat();
+
+        foreach (var id in NetworkManager.Instance.Players.Keys)
+        {
+            if (id == playerId)
+            {
+                NetworkManager.Instance.Players[id].SetAnimation(velocityX, velocityZ);
+            }
+        }
+
     }
     #endregion
 }

@@ -832,11 +832,11 @@ RectTransform:
   m_Father: {fileID: 162612973}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 550, y: 0}
-  m_Pivot: {x: 1, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &683462836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2901,7 +2901,7 @@ MonoBehaviour:
   ClientMessage: {fileID: 0}
   ServerMessage: {fileID: 0}
   LocalPlayer: {fileID: 0}
-  UseSteam: 0
+  UseSteam: 1
   _port: 7777
   _maxPlayer: 4
   LobbyPlayerPrefab: {fileID: -308427907339325933, guid: c66db3126540afb44af0b0d78ca037c5, type: 3}

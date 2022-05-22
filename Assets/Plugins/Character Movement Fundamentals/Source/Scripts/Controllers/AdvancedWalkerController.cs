@@ -23,6 +23,7 @@ namespace CMF
 
 		//Movement speed;
 		public float movementSpeed = 7f;
+		public float runSpeed = 10f;
 
 		//How fast the controller can change direction while in the air;
 		//Higher values result in more air control;
@@ -93,9 +94,12 @@ namespace CMF
 		{
 		}
 
+		private bool isSpriting = false;
 		void Update()
 		{
 			HandleJumpKeyInput();
+
+			isSpriting = Input.GetKey(KeyCode.LeftShift);
 		}
 
         //Handle jump booleans for later use in FixedUpdate;
@@ -209,7 +213,8 @@ namespace CMF
 			Vector3 _velocity = CalculateMovementDirection();
 
 			//Multiply (normalized) velocity with movement speed;
-			_velocity *= movementSpeed;
+			float movementTemp = isSpriting ? runSpeed : movementSpeed;
+			_velocity *= movementTemp;
 
 			return _velocity;
 		}
@@ -387,7 +392,8 @@ namespace CMF
 				Vector3 _movementVelocity = CalculateMovementVelocity();
 
 				//If controller has received additional momentum from somewhere else;
-				if(_horizontalMomentum.magnitude > movementSpeed)
+				float movementTemp = isSpriting ? runSpeed : movementSpeed;
+				if(_horizontalMomentum.magnitude > movementTemp)
 				{
 					//Prevent unwanted accumulation of speed in the direction of the current momentum;
 					if(VectorMath.GetDotProduct(_movementVelocity, _horizontalMomentum.normalized) > 0f)
@@ -402,7 +408,7 @@ namespace CMF
 				{
 					//Clamp _horizontal velocity to prevent accumulation of speed;
 					_horizontalMomentum += _movementVelocity * Time.deltaTime * airControlRate;
-					_horizontalMomentum = Vector3.ClampMagnitude(_horizontalMomentum, movementSpeed);
+					_horizontalMomentum = Vector3.ClampMagnitude(_horizontalMomentum, movementTemp);
 				}
 			}
 

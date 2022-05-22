@@ -12,6 +12,7 @@ public class NetworkServerMessage : MonoBehaviour
         startGame,
         movement,
         rotation,
+        animation,
     }
 
     #region Sended
@@ -61,6 +62,15 @@ public class NetworkServerMessage : MonoBehaviour
         message.AddFloat(y);
         NetworkManager.Instance.Server.SendToAll(message, id);
     }
+
+    private static void ServerOnClientAnimation(ushort id, Message message)
+    {
+       Message newMessage = Message.Create(MessageSendMode.unreliable, MessageId.animation);
+       newMessage.AddUShort(id);
+       newMessage.AddFloat(message.GetFloat());
+       newMessage.AddFloat(message.GetFloat());
+       NetworkManager.Instance.Server.SendToAll(newMessage, id);
+    }
     #endregion
 
 
@@ -90,6 +100,12 @@ public class NetworkServerMessage : MonoBehaviour
     private static void OnClientRotation(ushort id, Message message)
     {
         ServerOnClientRotation(id, message.GetFloat());
+    }
+
+    [MessageHandler((ushort) NetworkClientMessage.MessageId.animation)]
+    private static void OnClientAnimation(ushort id, Message message)
+    {
+        ServerOnClientAnimation(id, message);
     }
     #endregion
 }
