@@ -25,6 +25,7 @@ public class PlayerAnimationController : MonoBehaviour
         _animator.SetFloat("VelocityZ", velocityZ, 0.1f, Time.deltaTime);
         _animator.SetFloat("VelocityX", velocityX, 0.1f, Time.deltaTime);
 
+        if (NetworkManager.Instance == null) return;
         NetworkManager.Instance.ClientMessage.SendOnAnimation(velocityX, velocityZ);
     }
 }

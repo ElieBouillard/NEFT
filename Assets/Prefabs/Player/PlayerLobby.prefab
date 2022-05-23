@@ -235,7 +235,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8222708964552274246}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -244,7 +244,7 @@ RectTransform:
   - {fileID: 8222708965060225591}
   m_Father: {fileID: 8222708964540325626}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 3}
@@ -452,6 +452,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8222708964540325626}
     m_Modifications:
+    - target: {fileID: 166893076088683061, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: a9eb6bbba3b631c4c997d29d8c71e560, type: 2}
     - target: {fileID: 166893076088683083, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
       propertyPath: m_Name
       value: PlayerMesh
@@ -499,6 +503,18 @@ PrefabInstance:
     - target: {fileID: 656185184165339377, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1791972126102122318, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1791972126725225687, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6269640652622559315, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 166893076088683060, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}

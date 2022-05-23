@@ -229,7 +229,7 @@ public class NetworkManager : MonoBehaviour
     {
         if (_isRunningGame) return;
         
-        PlayerIdentity playerInstance = Instantiate(LobbyPlayerPrefab, SpawnPoints[Players.Count].position, Quaternion.identity);
+        PlayerIdentity playerInstance = Instantiate(LobbyPlayerPrefab, SpawnPoints[Players.Count].position, SpawnPoints[Players.Count].rotation);
         playerInstance.PlayerId = id;
         playerInstance.gameObject.name = $"Player {id}";
         Players.Add(id, playerInstance);

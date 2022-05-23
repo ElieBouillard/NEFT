@@ -110,8 +110,6 @@ public class NetworkClientMessage : MonoBehaviour
     [MessageHandler((ushort) NetworkServerMessage.MessageId.animation)]
     private static void OnServerAnimatePlayer(Message message)
     {
-        Debug.Log("uwu");
-        
         ushort playerId = message.GetUShort();
         float velocityX = message.GetFloat();
         float velocityZ = message.GetFloat();

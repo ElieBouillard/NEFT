@@ -22,6 +22,8 @@ public class PlayerRotationController : MonoBehaviour
     private int index = 0;
     private void FixedUpdate()
     {
+        if (NetworkManager.Instance == null) return;
+        
         if (index % 3 == 0)
         {
             NetworkManager.Instance.ClientMessage.SendOnRotation(transform.rotation.eulerAngles.y);
