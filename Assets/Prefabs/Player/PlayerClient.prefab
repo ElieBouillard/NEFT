@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8254476473121389893}
   - component: {fileID: -7478527453054281576}
+  - component: {fileID: 2573635384196474419}
   m_Layer: 0
   m_Name: PlayerClient
   m_TagString: Untagged
@@ -48,6 +49,20 @@ MonoBehaviour:
   SteamPlayerId: 0
   SteamPlayerName: 
   _animator: {fileID: 2739824823828932367}
+--- !u!136 &2573635384196474419
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8254476473121389892}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.225
+  m_Height: 1.3125
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.09375, z: 0}
 --- !u!1001 &2618065241940041018
 PrefabInstance:
   m_ObjectHideFlags: 0

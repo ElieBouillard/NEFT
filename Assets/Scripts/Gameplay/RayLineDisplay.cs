@@ -27,7 +27,7 @@ public class RayLineDisplay : MonoBehaviour
         }
         else
         {
-            _line.SetPosition(1, new Vector3(0,0,10));
+            _line.SetPosition(1, new Vector3(0,0,20));
         }
     }
 }

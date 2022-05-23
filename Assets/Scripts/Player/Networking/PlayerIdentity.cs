@@ -41,11 +41,20 @@ public class PlayerIdentity : MonoBehaviour
         if(IsLocalPlayer) return;
         
         if(_targetPos != null) transform.position = Vector3.LerpUnclamped(transform.position, _targetPos.Value, Time.deltaTime * 20f);
+        
         if (_targetRotY != null)
         {
             Quaternion targetRotation = new Quaternion();
             targetRotation = Quaternion.Euler(new Vector3(0,_targetRotY.Value,0));
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 25f);
+        }
+
+        if (_targetAnimation != null)
+        {
+            Vector2 currAnimation = new Vector2(_animator.GetFloat("VelocityX"), _animator.GetFloat("VelocityZ"));
+            Vector2 animation = Vector2.Lerp(currAnimation, _targetAnimation.Value, Time.deltaTime * 25f);
+            _animator.SetFloat("VelocityX", animation.x);
+            _animator.SetFloat("VelocityZ", animation.y);
         }
     }
 
@@ -68,7 +77,6 @@ public class PlayerIdentity : MonoBehaviour
     public void SetAnimation(float velocityX, float velocityZ)
     {
         if(_animator == null) return;
-        _animator.SetFloat("VelocityZ", velocityZ, 0.1f, Time.deltaTime);
-        _animator.SetFloat("VelocityX", velocityX, 0.1f, Time.deltaTime);
+        _targetAnimation = new Vector2(velocityX, velocityZ);
     }
 }
