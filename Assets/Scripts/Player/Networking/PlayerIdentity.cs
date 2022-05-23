@@ -30,7 +30,7 @@ public class PlayerIdentity : MonoBehaviour
     public void SetPlayerAsLocalPlayer()
     {
         IsLocalPlayer = true;
-        gameObject.GetComponentInChildren<Renderer>().material.color = Color.green;
+        // gameObject.GetComponentInChildren<Renderer>().material.color = Color.green;
     }
 
     private Vector3? _targetPos;
