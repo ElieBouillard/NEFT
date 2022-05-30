@@ -13,10 +13,6 @@ public class RayLineDisplay : MonoBehaviour
     }
 
     private Ray ray;
-    private void Start()
-    {
-
-    }
 
     private void Update()
     {

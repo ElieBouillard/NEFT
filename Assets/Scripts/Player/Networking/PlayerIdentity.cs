@@ -13,9 +13,10 @@ public class PlayerIdentity : MonoBehaviour
 
     public string SteamPlayerName;
 
-    public Animator _animator;
-    
+    [SerializeField] private Animator _animator;
 
+    public PlayerFireController FireController;
+    
     public void LoadSteamInfo(ulong steamId)
     {
         SteamPlayerId = steamId;

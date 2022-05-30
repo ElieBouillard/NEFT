@@ -54,6 +54,7 @@ MonoBehaviour:
   SteamPlayerId: 0
   SteamPlayerName: 
   _animator: {fileID: 6161577923731334120}
+  FireController: {fileID: 2867645082607853107}
 --- !u!114 &2867645082607853107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,7 +67,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7660db1bab6a40546afcb7f57053a63f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _shootPos: {fileID: 5696177218727589524}
   _muzzleFlashParticleSystem: {fileID: 3638542935281415224}
+  _impactParticleSystem: {fileID: 1879272669879180, guid: 7bef351ddc33ae044b671a7664396a20, type: 3}
 --- !u!114 &2967379361469375341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,6 +227,11 @@ Transform:
 --- !u!95 &6161577923731334120 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 166893076088683061, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
+  m_PrefabInstance: {fileID: 6328329504147757533}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5696177218727589524 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1791972126102122313, guid: d244ec4726ba0254c8118183c0be8d5e, type: 3}
   m_PrefabInstance: {fileID: 6328329504147757533}
   m_PrefabAsset: {fileID: 0}
 --- !u!198 &3638542935281415224 stripped

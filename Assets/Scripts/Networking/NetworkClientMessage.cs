@@ -13,6 +13,7 @@ public class NetworkClientMessage : MonoBehaviour
         movement,
         rotation,
         animation,
+        shoot,
     }
 
     #region Sended
@@ -49,6 +50,19 @@ public class NetworkClientMessage : MonoBehaviour
         message.AddFloat(velocityX);
         message.AddFloat(velocityZ);
         NetworkManager.Instance.Client.Send(message);
+    }
+
+    public void SendOnShoot(Vector3 pos, Vector3 dir)
+    {
+        Message message = Message.Create(MessageSendMode.reliable, MessageId.shoot);
+        message.AddVector3(pos);
+        message.AddVector3(dir);
+        NetworkManager.Instance.Client.Send(message);
+    }
+
+    public void SendOnReceivedShoot()
+    {
+        
     }
     #endregion
 
@@ -122,6 +136,22 @@ public class NetworkClientMessage : MonoBehaviour
             }
         }
 
+    }
+
+    [MessageHandler((ushort) NetworkServerMessage.MessageId.shoot)]
+    private static void OnServerClientShoot(Message message)
+    {
+        ushort playerId = message.GetUShort();
+        Vector3 pos = message.GetVector3();
+        Vector3 dir    = message.GetVector3();
+        
+        foreach (var id in NetworkManager.Instance.Players.Keys)
+        {
+            if (id == playerId)
+            {
+                NetworkManager.Instance.Players[id].FireController.ReceivedShoot(pos, dir);
+            }
+        }
     }
     #endregion
 }
