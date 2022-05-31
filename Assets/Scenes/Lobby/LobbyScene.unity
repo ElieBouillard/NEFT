@@ -2923,7 +2923,7 @@ MonoBehaviour:
   ClientMessage: {fileID: 0}
   ServerMessage: {fileID: 0}
   LocalPlayer: {fileID: 0}
-  UseSteam: 0
+  UseSteam: 1
   _port: 7777
   _maxPlayer: 4
   LobbyPlayerPrefab: {fileID: -308427907339325933, guid: c66db3126540afb44af0b0d78ca037c5, type: 3}

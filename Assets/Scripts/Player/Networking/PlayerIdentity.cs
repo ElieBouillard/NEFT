@@ -15,8 +15,15 @@ public class PlayerIdentity : MonoBehaviour
 
     [SerializeField] private Animator _animator;
 
-    public PlayerFireController FireController;
-    
+    public PlayerFireController _fireController;
+    public PlayerHealthController _healthController;
+
+    private void Awake()
+    {
+        _fireController = gameObject.GetComponent<PlayerFireController>();
+        _healthController = gameObject.GetComponent<PlayerHealthController>();
+    }
+
     public void LoadSteamInfo(ulong steamId)
     {
         SteamPlayerId = steamId;
@@ -37,6 +44,7 @@ public class PlayerIdentity : MonoBehaviour
     private Vector3? _targetPos;
     private float? _targetRotY;
     private Vector2? _targetAnimation;
+    
     private void Update()
     {
         if(IsLocalPlayer) return;

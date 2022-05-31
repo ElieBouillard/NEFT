@@ -51,15 +51,15 @@ public class NetworkClientMessage : MonoBehaviour
         message.AddFloat(velocityZ);
         NetworkManager.Instance.Client.Send(message);
     }
-
-    public void SendOnShoot(Vector3 pos, Vector3 dir)
+    
+    public void SendOnShoot(int hit, Vector3 pos, ushort playerHitId)
     {
         Message message = Message.Create(MessageSendMode.reliable, MessageId.shoot);
+        message.AddInt(hit);
         message.AddVector3(pos);
-        message.AddVector3(dir);
+        message.AddUShort(playerHitId);
         NetworkManager.Instance.Client.Send(message);
     }
-
     public void SendOnReceivedShoot()
     {
         
@@ -142,14 +142,15 @@ public class NetworkClientMessage : MonoBehaviour
     private static void OnServerClientShoot(Message message)
     {
         ushort playerId = message.GetUShort();
+        int hit = message.GetInt();
         Vector3 pos = message.GetVector3();
-        Vector3 dir    = message.GetVector3();
+        ushort playerHit = message.GetUShort();
         
         foreach (var id in NetworkManager.Instance.Players.Keys)
         {
-            if (id == playerId)
+            if (id == playerHit)
             {
-                NetworkManager.Instance.Players[id].FireController.ReceivedShoot(pos, dir);
+                NetworkManager.Instance.Players[id]._fireController.ReceivedShoot(hit, pos, playerHit);
             }
         }
     }

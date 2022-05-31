@@ -77,8 +77,9 @@ public class NetworkServerMessage : MonoBehaviour
     {
         Message newMessage = Message.Create(MessageSendMode.reliable, MessageId.shoot);
         newMessage.AddUShort(id);
+        newMessage.AddInt(message.GetInt());
         newMessage.AddVector3(message.GetVector3());
-        newMessage.AddVector3(message.GetVector3());
+        newMessage.AddUShort(message.GetUShort());
         NetworkManager.Instance.Server.SendToAll(newMessage, id);
     }
     #endregion
