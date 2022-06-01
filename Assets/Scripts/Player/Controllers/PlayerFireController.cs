@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 
@@ -23,17 +24,11 @@ public class PlayerFireController : MonoBehaviour
      
         if (Input.GetMouseButtonDown(0))
         {
-            _muzzleFlashParticleSystem.Stop();
-            _muzzleFlashParticleSystem.Play();
+            PlayMuzzleFlashFX();
 
             Ray ray = new Ray(_shootPos.position, _shootPos.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, 50f))
             {
-                Debug.DrawRay(hit.point, hit.normal * 3f, Color.green, 5f);
-                
-                GameObject _impactInstance = Instantiate(_impactParticleSystem, hit.point, Quaternion.identity);
-                _impactInstance.transform.forward = hit.normal;
-
                 if (hit.transform.TryGetComponent<PlayerIdentity>(out PlayerIdentity playerHit))
                 {
                     playerHit._healthController.TakeDamage();
@@ -43,6 +38,8 @@ public class PlayerFireController : MonoBehaviour
                 {
                     SendShoot(1, hit.point, new ushort());
                 }
+                
+                InstantiateImpact(hit.point, hit.normal);
             }
             else
             {
@@ -51,30 +48,25 @@ public class PlayerFireController : MonoBehaviour
         }
     }
 
+    public void PlayMuzzleFlashFX()
+    {
+        _muzzleFlashParticleSystem.Stop();
+        _muzzleFlashParticleSystem.Play();
+    }
+
+    public void InstantiateImpact(Vector3 pos, Vector3 dir)
+    {
+        GameObject _impactInstance = Instantiate(_impactParticleSystem, pos, Quaternion.identity);
+        _impactInstance.transform.forward = dir;
+        Destroy(_impactInstance, 4f);
+    }
     public void SendShoot(int hit, Vector3 pos, ushort playerHitId)
     {
         NetworkManager.Instance.ClientMessage.SendOnShoot(hit, pos, playerHitId);
     }
 
-    public void ReceivedShoot(int hit, Vector3 pos, ushort playerHit)
+    public void ReceivedShoot()
     {
-        _muzzleFlashParticleSystem.Stop();
-        _muzzleFlashParticleSystem.Play();
-
-        if (hit == 0) return;
-        
-        GameObject _impactInstance = Instantiate(_impactParticleSystem, pos, Quaternion.identity);
-        // _impactInstance.transform.forward = hit.normal;
-            
-        if (hit == 1) return;
-
-        foreach (ushort id in NetworkManager.Instance.Players.Keys)
-        {
-            if (id == playerHit)
-            {
-                Debug.Log($"{NetworkManager.Instance.Players[id].gameObject.name} hit");
-                NetworkManager.Instance.Players[id]._healthController.TakeDamage();
-            }
-        }
+        _player._healthController.TakeDamage();
     }
 }

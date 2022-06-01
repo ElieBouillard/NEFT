@@ -146,12 +146,19 @@ public class NetworkClientMessage : MonoBehaviour
         Vector3 pos = message.GetVector3();
         ushort playerHit = message.GetUShort();
         
-        foreach (var id in NetworkManager.Instance.Players.Keys)
+        foreach (var player in NetworkManager.Instance.Players)
         {
-            if (id == playerHit)
+            if (player.Key == playerId)
             {
-                NetworkManager.Instance.Players[id]._fireController.ReceivedShoot(hit, pos, playerHit);
+                player.Value._fireController.PlayMuzzleFlashFX();
+                if(hit != 0) player.Value._fireController.InstantiateImpact(pos, Vector3.up);
             }
+            
+            if (player.Key == playerHit)
+            {
+                player.Value._fireController.ReceivedShoot();
+            }
+            
         }
     }
     #endregion

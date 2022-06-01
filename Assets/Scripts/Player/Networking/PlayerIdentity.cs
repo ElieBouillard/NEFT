@@ -55,13 +55,13 @@ public class PlayerIdentity : MonoBehaviour
         {
             Quaternion targetRotation = new Quaternion();
             targetRotation = Quaternion.Euler(new Vector3(0,_targetRotY.Value,0));
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 25f);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 15f);
         }
 
         if (_targetAnimation != null)
         {
             Vector2 currAnimation = new Vector2(_animator.GetFloat("VelocityX"), _animator.GetFloat("VelocityZ"));
-            Vector2 animation = Vector2.Lerp(currAnimation, _targetAnimation.Value, Time.deltaTime * 25f);
+            Vector2 animation = Vector2.Lerp(currAnimation, _targetAnimation.Value, Time.deltaTime * 5f);
             _animator.SetFloat("VelocityX", animation.x);
             _animator.SetFloat("VelocityZ", animation.y);
         }
