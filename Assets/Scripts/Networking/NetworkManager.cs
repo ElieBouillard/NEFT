@@ -36,7 +36,7 @@ public class NetworkManager : MonoBehaviour
     [HideInInspector] public NetworkServerMessage ServerMessage;
 
     public Dictionary<ushort, PlayerIdentity> Players = new Dictionary<ushort, PlayerIdentity>();
-    [HideInInspector] public PlayerIdentity LocalPlayer;
+     public PlayerIdentity LocalPlayer;
     #endregion
 
     #region Inspector
@@ -290,6 +290,7 @@ public class NetworkManager : MonoBehaviour
             {
                 player = Instantiate(LocalPlayerPrefab, Vector3.zero, Quaternion.identity);
                 player.SetPlayerAsLocalPlayer();
+                LocalPlayer = player;
                 CameraController.Instance.SetTarget(player.transform);
             }
             else
@@ -302,10 +303,13 @@ public class NetworkManager : MonoBehaviour
             player.SteamPlayerName = Players[id].SteamPlayerName;
 
             player.gameObject.name = $"Player : {id} : {player.SteamPlayerName}";
+
             playersTemp.Add(id, player);
         }
         
         Players = playersTemp;
+        
+        Debug.Log($"Players Count : {Players.Count}");
     }
     #endregion
 

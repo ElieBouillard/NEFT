@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using RiptideNetworking;
 using Steamworks;
 using UnityEngine;
+using UnityEngine.Rendering.HighDefinition;
 
 public class NetworkClientMessage : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class NetworkClientMessage : MonoBehaviour
         rotation,
         animation,
         shoot,
+        shootReceived,
     }
 
     #region Sended
@@ -52,17 +54,23 @@ public class NetworkClientMessage : MonoBehaviour
         NetworkManager.Instance.Client.Send(message);
     }
     
-    public void SendOnShoot(int hit, Vector3 pos, ushort playerHitId)
+    public void SendOnShoot(PlayerFireController.Shoot  shoot)
     {
-        Message message = Message.Create(MessageSendMode.reliable, MessageId.shoot);
-        message.AddInt(hit);
-        message.AddVector3(pos);
-        message.AddUShort(playerHitId);
+        Message message = Message.Create(MessageSendMode.unreliable, MessageId.shoot);
+        message.AddInt(shoot.HitId);
+        message.AddInt(shoot.Type);
+        message.AddVector3(shoot.Pos);
+        message.AddVector3(shoot.Dir);
+        message.AddUShort(shoot.PlayerHitId);
         NetworkManager.Instance.Client.Send(message);
     }
-    public void SendOnReceivedShoot()
+
+    public static void SendOnShootReceived(ushort idToSent, PlayerFireController.Shoot shoot)
     {
-        
+        Message message = Message.Create(MessageSendMode.reliable, MessageId.shootReceived);
+        message.AddUShort(idToSent);
+        message.AddInt(shoot.HitId);
+        NetworkManager.Instance.Client.Send(message);
     }
     #endregion
 
@@ -138,28 +146,47 @@ public class NetworkClientMessage : MonoBehaviour
 
     }
 
+    private static List<int> _shotsIdReceived = new List<int>();
+
     [MessageHandler((ushort) NetworkServerMessage.MessageId.shoot)]
     private static void OnServerClientShoot(Message message)
     {
         ushort playerId = message.GetUShort();
-        int hit = message.GetInt();
+        int hitId = message.GetInt();
+        int type = message.GetInt();
         Vector3 pos = message.GetVector3();
+        Vector3 dir = message.GetVector3();
         ushort playerHit = message.GetUShort();
+
+        if (_shotsIdReceived.Contains(hitId)) return;
+        _shotsIdReceived.Add(hitId);
         
+        PlayerFireController.Shoot shoot = new PlayerFireController.Shoot(type, pos, dir, playerHit);
+        shoot.HitId = hitId;
+
         foreach (var player in NetworkManager.Instance.Players)
         {
-            if (player.Key == playerId)
+            if (player.Value.PlayerId == playerId)
             {
-                player.Value._fireController.PlayMuzzleFlashFX();
-                if(hit != 0) player.Value._fireController.InstantiateImpact(pos, Vector3.up);
+                player.Value._fireController.MakeAShoot(shoot);
             }
-            
-            if (player.Key == playerHit)
+
+            if (player.Value.PlayerId == playerHit)
             {
-                player.Value._fireController.ReceivedShoot();
+                player.Value._healthController.TakeDamage();
             }
-            
         }
+        
+        Debug.Log($"{playerId} : {hitId} : {type} : {pos} : {dir} : {playerHit}");
+        
+        SendOnShootReceived(playerId, shoot);
+    }
+
+    [MessageHandler((ushort) NetworkServerMessage.MessageId.shootReceived)]
+    private static void OnServerClientShootReceived(Message message)
+    {
+        int shootId = message.GetInt();
+        NetworkManager.Instance.LocalPlayer._fireController.ReceivedShoot(shootId);
     }
     #endregion
 }

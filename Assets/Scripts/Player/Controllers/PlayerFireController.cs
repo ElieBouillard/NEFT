@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using TMPro;
+using CameraShake;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerFireController : MonoBehaviour
 {
@@ -12,6 +11,8 @@ public class PlayerFireController : MonoBehaviour
     [SerializeField] private GameObject _impactParticleSystem;
 
     private PlayerIdentity _player;
+
+    private List<ShootReceivedData> _shootsToSend = new List<ShootReceivedData>();
 
     private void Awake()
     {
@@ -24,49 +25,115 @@ public class PlayerFireController : MonoBehaviour
      
         if (Input.GetMouseButtonDown(0))
         {
-            PlayMuzzleFlashFX();
+            CameraShaker.Presets.ShortShake3D();
 
+            Shoot newShoot = new Shoot(0, Vector3.zero, Vector3.zero, new ushort()); 
+            
             Ray ray = new Ray(_shootPos.position, _shootPos.forward);
             if (Physics.Raycast(ray, out RaycastHit hit, 50f))
             {
+                newShoot.Pos = hit.point;
+                newShoot.Dir = hit.normal;
+                
                 if (hit.transform.TryGetComponent<PlayerIdentity>(out PlayerIdentity playerHit))
                 {
                     playerHit._healthController.TakeDamage();
-                    SendShoot(2, hit.point, playerHit.PlayerId);
+                    newShoot.PlayerHitId = playerHit.PlayerId;
+                    newShoot.Type = 2;
                 }
                 else
                 {
-                    SendShoot(1, hit.point, new ushort());
+                    newShoot.Type = 1;
                 }
-                
-                InstantiateImpact(hit.point, hit.normal);
             }
-            else
+            
+            MakeAShoot(newShoot);
+            _shootsToSend.Add(new ShootReceivedData(newShoot));
+        }
+
+        foreach (var VARIABLE in _shootsToSend)
+        {
+            if (VARIABLE.PlayersReceivedCount == NetworkManager.Instance.Players.Count - 1)
             {
-                SendShoot(0,Vector3.zero, new ushort());
+                _shootsToSend.Remove(VARIABLE);
             }
+            break;
         }
     }
 
-    public void PlayMuzzleFlashFX()
+    private void FixedUpdate()
+    {
+        for (int i = 0; i < _shootsToSend.Count; i++)
+        {
+            NetworkManager.Instance.ClientMessage.SendOnShoot(_shootsToSend[i].Shoot);
+        }
+    }
+
+    public void MakeAShoot(Shoot shoot)
+    {
+        PlayMuzzleFlashFX();
+
+        if (shoot.Type == 0) return;
+        
+        InstantiateImpact(shoot);
+    }
+    
+    private void PlayMuzzleFlashFX()
     {
         _muzzleFlashParticleSystem.Stop();
         _muzzleFlashParticleSystem.Play();
     }
 
-    public void InstantiateImpact(Vector3 pos, Vector3 dir)
+    public void InstantiateImpact(Shoot shoot) 
     {
-        GameObject _impactInstance = Instantiate(_impactParticleSystem, pos, Quaternion.identity);
-        _impactInstance.transform.forward = dir;
+        GameObject _impactInstance = Instantiate(_impactParticleSystem, shoot.Pos, Quaternion.identity);
+        _impactInstance.transform.forward = shoot.Dir;
         Destroy(_impactInstance, 4f);
     }
-    public void SendShoot(int hit, Vector3 pos, ushort playerHitId)
+
+    public void ReceivedShoot(int shootId)
     {
-        NetworkManager.Instance.ClientMessage.SendOnShoot(hit, pos, playerHitId);
+        foreach (var shoot in _shootsToSend)
+        {
+            if (shoot.Shoot.HitId == shootId)
+            {
+                shoot.AddPlayerReceived();
+            }
+        }
+    }
+    
+    public struct Shoot
+    {
+        public int HitId;
+        public int Type;
+        public Vector3 Pos;
+        public Vector3 Dir;
+        public ushort PlayerHitId;
+
+        public Shoot(int type, Vector3 pos, Vector3 dir, ushort playerHitId)
+        {
+            HitId = Random.Range(0, 999999);
+            Type = type;
+            Pos = pos;
+            Dir = dir;
+            PlayerHitId = playerHitId;
+        }
     }
 
-    public void ReceivedShoot()
+    public struct ShootReceivedData
     {
-        _player._healthController.TakeDamage();
+        public Shoot Shoot;
+        public int PlayersReceivedCount;
+
+        public ShootReceivedData(Shoot shoot)
+        {
+            Shoot = shoot;
+            PlayersReceivedCount = 0;
+        }
+
+        public void AddPlayerReceived()
+        {
+            PlayersReceivedCount++;
+        }
     }
 }

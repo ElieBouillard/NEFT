@@ -14,6 +14,7 @@ public class NetworkServerMessage : MonoBehaviour
         rotation,
         animation,
         shoot,
+        shootReceived,
     }
 
     #region Sended
@@ -77,10 +78,22 @@ public class NetworkServerMessage : MonoBehaviour
     {
         Message newMessage = Message.Create(MessageSendMode.reliable, MessageId.shoot);
         newMessage.AddUShort(id);
+        newMessage.AddInt(message.GetInt());//HitID
+        newMessage.AddInt(message.GetInt());//Type
+        newMessage.AddVector3(message.GetVector3());//Pos
+        newMessage.AddVector3(message.GetVector3());//Dir
+        newMessage.AddUShort(message.GetUShort());//PlayerHit
+        NetworkManager.Instance.Server.SendToAll(newMessage,id);
+    }
+
+    private static void ServerOnClientShootReceived(ushort id, Message message)
+    {
+        ushort playerIdToSend = message.GetUShort();
+        
+        Message newMessage = Message.Create(MessageSendMode.reliable, MessageId.shootReceived);
         newMessage.AddInt(message.GetInt());
-        newMessage.AddVector3(message.GetVector3());
-        newMessage.AddUShort(message.GetUShort());
-        NetworkManager.Instance.Server.SendToAll(newMessage, id);
+        
+        NetworkManager.Instance.Server.Send(newMessage, playerIdToSend);
     }
     #endregion
 
@@ -123,6 +136,12 @@ public class NetworkServerMessage : MonoBehaviour
     private static void OnClientShoot(ushort id, Message message)
     {
         ServerOnClientShoot(id, message);
+    }
+    
+    [MessageHandler((ushort) NetworkClientMessage.MessageId.shootReceived)]
+    private static void OnClientShootReceived(ushort id, Message message)
+    {
+        ServerOnClientShootReceived(id, message);
     }
     #endregion
 }
