@@ -158,6 +158,8 @@ public class NetworkClientMessage : MonoBehaviour
         Vector3 dir = message.GetVector3();
         ushort playerHit = message.GetUShort();
 
+        Debug.Log($"{playerId} : {hitId} : {type} : {pos} : {dir} : {playerHit}");
+        
         if (_shotsIdReceived.Contains(hitId)) return;
         _shotsIdReceived.Add(hitId);
         
@@ -176,9 +178,7 @@ public class NetworkClientMessage : MonoBehaviour
                 player.Value._healthController.TakeDamage();
             }
         }
-        
-        Debug.Log($"{playerId} : {hitId} : {type} : {pos} : {dir} : {playerHit}");
-        
+
         SendOnShootReceived(playerId, shoot);
     }
 

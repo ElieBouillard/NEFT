@@ -50,15 +50,6 @@ public class PlayerFireController : MonoBehaviour
             MakeAShoot(newShoot);
             _shootsToSend.Add(new ShootReceivedData(newShoot));
         }
-
-        foreach (var VARIABLE in _shootsToSend)
-        {
-            if (VARIABLE.PlayersReceivedCount == NetworkManager.Instance.Players.Count - 1)
-            {
-                _shootsToSend.Remove(VARIABLE);
-            }
-            break;
-        }
     }
 
     private void FixedUpdate()
@@ -97,7 +88,12 @@ public class PlayerFireController : MonoBehaviour
         {
             if (shoot.Shoot.HitId == shootId)
             {
-                shoot.AddPlayerReceived();
+                shoot.PlayersReceivedCount++;
+                if (shoot.PlayersReceivedCount == NetworkManager.Instance.Players.Count - 1)
+                {
+                    _shootsToSend.Remove(shoot);
+                    return;
+                }
             }
         }
     }
@@ -120,7 +116,7 @@ public class PlayerFireController : MonoBehaviour
         }
     }
 
-    public struct ShootReceivedData
+    public class ShootReceivedData
     {
         public Shoot Shoot;
         public int PlayersReceivedCount;
@@ -129,11 +125,6 @@ public class PlayerFireController : MonoBehaviour
         {
             Shoot = shoot;
             PlayersReceivedCount = 0;
-        }
-
-        public void AddPlayerReceived()
-        {
-            PlayersReceivedCount++;
         }
     }
 }
