@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,11 @@ public class ConnectionPannel : Pannel
     [SerializeField] private Button _hostButton;
     [SerializeField] private Button _joinButton;
     [SerializeField] private Button _quitButton;
+
+    private void Start()
+    {
+        _joinButton.gameObject.SetActive(!NetworkManager.Instance.UseSteam);
+    }
 
     public override void AssignButtonsReferences()
     {

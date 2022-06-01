@@ -33,17 +33,15 @@ public class UIManager : MonoBehaviour
         
         _connectionPannel.gameObject.SetActive(true);
         _lobbyPannel.gameObject.SetActive(false);
-    }
-
-    private void Start()
-    {
-        _steamInfoPannel.gameObject.SetActive(NetworkManager.Instance.UseSteam);
+        _steamInfoPannel.gameObject.SetActive(false);
     }
 
     public void ClientConnected(bool value)
     {
         _connectionPannel.gameObject.SetActive(!value);
-        // _steamInfoPannel.gameObject.SetActive(!value);
+        
+        if(NetworkManager.Instance.UseSteam) _steamInfoPannel.gameObject.SetActive(value);
+        
         _lobbyPannel.gameObject.SetActive(value);
     }
 }
