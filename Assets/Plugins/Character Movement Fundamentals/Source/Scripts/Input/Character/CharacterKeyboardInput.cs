@@ -7,6 +7,7 @@ namespace CMF
 	//This character movement input class is an example of how to get input from a keyboard to control the character;
     public class CharacterKeyboardInput : CharacterInput
     {
+	    public bool EnableInput = true;
 		public string horizontalInputAxis = "Horizontal";
 		public string verticalInputAxis = "Vertical";
 		public KeyCode jumpKey = KeyCode.Space;
@@ -15,7 +16,9 @@ namespace CMF
 		public bool useRawInput = true;
 
         public override float GetHorizontalMovementInput()
-		{
+        {
+	        if (!EnableInput) return 0;
+	        
 			if(useRawInput)
 				return Input.GetAxisRaw(horizontalInputAxis);
 			else
@@ -24,6 +27,8 @@ namespace CMF
 
 		public override float GetVerticalMovementInput()
 		{
+			if (!EnableInput) return 0;
+			
 			if(useRawInput)
 				return Input.GetAxisRaw(verticalInputAxis);
 			else
@@ -32,6 +37,8 @@ namespace CMF
 
 		public override bool IsJumpKeyPressed()
 		{
+			if (!EnableInput) return false;
+			
 			return Input.GetKey(jumpKey);
 		}
     }
